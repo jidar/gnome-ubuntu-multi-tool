@@ -1,7 +1,6 @@
 #!/usr/bin/python
 from subprocess import Popen, PIPE
 import argh
-import argcomplete
 import ast
 import os
 
@@ -15,6 +14,12 @@ def _execute(command):
     return_code = process.returncode
 
     return (std_out, std_err, return_code)
+
+
+def reset_wifi():
+    _execute("sudo service network-manager stop")
+    _execute("sudo rm -f /var/lib/NetworkManager/NetworkManager.state")
+    _execute("sudo service network-manager start")
 
 
 @argh.arg(
@@ -107,6 +112,13 @@ def disable_extensions(extensions):
         '"{0}"'.format(extensions))
 
 
+def reset_extensions():
+    extensions = get_enabled_extensions()
+    _execute(
+        'gsettings set org.gnome.shell enabled-extensions '
+        '"{0}"'.format(extensions))
+
+
 def get_display_list():
     std_out, _, _ = _execute('xrandr')
     std_out = std_out.splitlines()
@@ -144,8 +156,15 @@ def scale_gui(factor):
 
 parser = argh.ArghParser()
 parser.add_commands(
-    [fix_colors, scale_gui, list_extensions, enable_extensions,
-     list_enabled_extensions, disable_extensions, list_displays])
+    [list_extensions,
+     list_enabled_extensions,
+     enable_extensions,
+     disable_extensions,
+     reset_extensions,
+     fix_colors,
+     scale_gui,
+     list_displays,
+     reset_wifi])
 
 if __name__ == "__main__":
     parser.dispatch()
