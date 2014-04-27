@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name='gumtool',
     version='0.0.1',
-    description=open('README.md).read(),
+    description=open('README.md').read(),
     author='Jose A. Idar',
     author_email='jose.idar@gmail.com',
     url='code.thatjoseguy.com',
