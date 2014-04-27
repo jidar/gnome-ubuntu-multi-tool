@@ -6,7 +6,7 @@ setup(
     description=open('README.md').read(),
     author='Jose A. Idar',
     author_email='jose.idar@gmail.com',
-    url='code.thatjoseguy.com',
+    url='blog.thatjoseguy.com',
     packages=find_packages(),
     install_requires=open('pip-requires').read(),
     license=open('LICENSE').read(),
