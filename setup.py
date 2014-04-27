@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='gumtool',
-    version='0.0.1',
+    version='0.0.2',
     description=(
         "A simple collection of tools that make running Gnome (3.10+) "
         "Ubuntu (14.04+) a little easier, especially on high-dpi hardware "
@@ -15,10 +15,11 @@ setup(
     license=open('LICENSE').read(),
     zip_safe=False,
     classifiers=(
-        'Development Status :: 1 - Planning',
-        'Intended Audience :: Developers',
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: End Users/Desktop',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
+        'License :: OSI Approved :: Apache Software License',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
     ),
