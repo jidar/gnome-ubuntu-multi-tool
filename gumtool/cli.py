@@ -9,10 +9,8 @@ def _execute(command):
 
     # Run the command
     process = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
-
     std_out, std_err = process.communicate()
     return_code = process.returncode
-
     return (std_out, std_err, return_code)
 
 
@@ -25,11 +23,10 @@ def reset_wifi():
 @argh.arg(
     'location', nargs=1, choices=['user', 'system', 'all'])
 def list_extensions(location):
-    print "\n".join(get_extensions(location))
+    print "\n".join(_get_extensions(location[0]))
 
 
-def get_extensions(location):
-    location = location[0]
+def _get_extensions(location):
     extensions = []
     if location in ['user', 'all']:
         path = os.path.expanduser('~/.local/share/gnome-shell/extensions')
@@ -42,21 +39,26 @@ def get_extensions(location):
     return extensions
 
 
+def _current_extensions():
+    extensions = {}
+    extensions['user'] = _get_extensions('user')
+    extensions['system'] = _get_extensions('system')
+    extensions['all'] = _get_extensions('all')
+    return extensions
+
+
 @argh.arg(
     'location', nargs=1, default='all', choices=['user', 'system', 'all'])
 def list_enabled_extensions(location):
-    default_extensions = {}
-    default_extensions['user'] = get_extensions(['user'])
-    default_extensions['system'] = get_extensions(['system'])
-    default_extensions['all'] = get_extensions(['all'])
-    extensions = get_enabled_extensions()
+    default_extensions = _current_extensions()
+    extensions = _get_enabled_extensions()
     extensions = [
         e for e in extensions if e in default_extensions[location[0]]]
 
     print '\n'.join(extensions)
 
 
-def get_enabled_extensions():
+def _get_enabled_extensions():
     std_out, _, _ = _execute(
         'gsettings get org.gnome.shell enabled-extensions')
     try:
@@ -66,7 +68,7 @@ def get_enabled_extensions():
 
 
 ext = ['user', 'system', 'all']
-ext.extend(get_extensions(['all']))
+ext.extend(_get_extensions(['all']))
 extension_decorator = argh.arg(
     'extensions', nargs="+", choices=ext, metavar='',
     help="run the list-extensions command to see a list of available"
@@ -74,19 +76,16 @@ extension_decorator = argh.arg(
 
 
 def _expand_requested_extension_list(extensions):
-    default_extensions = {}
-    default_extensions['user'] = get_extensions(['user'])
-    default_extensions['system'] = get_extensions(['system'])
-    default_extensions['all'] = get_extensions(['all'])
+    default_extensions = _current_extensions()
     final_extension_list = []
-    for metatype in ['user', 'system', 'all']:
-        if metatype in extensions:
+    for location in ['user', 'system', 'all']:
+        if location in extensions:
             try:
                 while True:
-                    extensions.remove(metatype)
+                    extensions.remove(location)
             except:
                 pass
-            final_extension_list.extend(default_extensions[metatype])
+            final_extension_list.extend(default_extensions[location])
     final_extension_list.extend(extensions)
     return final_extension_list
 
@@ -94,32 +93,33 @@ def _expand_requested_extension_list(extensions):
 @extension_decorator
 def enable_extensions(extensions):
     extensions = _expand_requested_extension_list(extensions)
-    extensions.extend(get_enabled_extensions())
+    extensions.extend(_get_enabled_extensions())
 
     _execute(
-        'gsettings set org.gnome.shell enabled-extensions '
-        '"{0}"'.format(extensions))
+        'gsettings set org.gnome.shell enabled-extensions "{0}"'.format(
+            extensions))
 
 
 @extension_decorator
 def disable_extensions(extensions):
     extensions = _expand_requested_extension_list(extensions)
-    enabled_extensions = get_enabled_extensions()
+    enabled_extensions = _get_enabled_extensions()
 
     extensions = [e for e in enabled_extensions if e not in extensions]
     _execute(
-        'gsettings set org.gnome.shell enabled-extensions '
-        '"{0}"'.format(extensions))
+        'gsettings set org.gnome.shell enabled-extensions "{0}"'.format(
+            extensions))
 
 
+@argh.arg(help="Disables and then re-enables all active extensions")
 def reset_extensions():
-    extensions = get_enabled_extensions()
+    extensions = _get_enabled_extensions()
     _execute(
-        'gsettings set org.gnome.shell enabled-extensions '
-        '"{0}"'.format(extensions))
+        'gsettings set org.gnome.shell enabled-extensions "{0}"'.format(
+            extensions))
 
 
-def get_display_list():
+def _get_display_list():
     std_out, _, _ = _execute('xrandr')
     std_out = std_out.splitlines()
     displays = [
@@ -128,12 +128,13 @@ def get_display_list():
     return displays
 
 
+@argh.arg(help="Lists all displays as named by xrandr")
 def list_displays():
-    print '\n'.join(get_display_list())
+    print '\n'.join(_get_display_list())
 
 
-display_choices = get_display_list()
-display_choices.extend(['all'])
+display_choices = ['all']
+display_choices.extend(_get_display_list())
 
 
 @argh.arg(
