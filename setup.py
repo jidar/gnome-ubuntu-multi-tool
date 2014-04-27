@@ -1,11 +1,9 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='gumt',
+    name='gumtool',
     version='0.0.1',
-    description=(
-        'Gnome Ubuntu Mac Tweaks: Simple collection of tweaks to make using '
-        'a macbook with gnome ubuntu a little easier.'),
+    description=open('README.md).read(),
     author='Jose A. Idar',
     author_email='jose.idar@gmail.com',
     url='code.thatjoseguy.com',
@@ -23,5 +21,5 @@ setup(
     ),
     entry_points = {
         'console_scripts':
-        ['gumt = gumt.cli:entry_point']}
+        ['gumtool = gumtool.cli:entry_point']}
     )
