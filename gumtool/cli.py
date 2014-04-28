@@ -14,8 +14,8 @@ def _execute(command):
     return (std_out, std_err, return_code)
 
 
-@argh.arg('reset-wifi', help="Cycles wifi to reset state after suspend")
-def reset_wifi():
+def reset_network():
+    """Cycles network to reset state after suspend"""
     _execute("sudo service network-manager stop")
     _execute("sudo rm -f /var/lib/NetworkManager/NetworkManager.state")
     _execute("sudo service network-manager start")
@@ -111,10 +111,8 @@ def disable_extensions(extensions):
             extensions))
 
 
-@argh.arg(
-    'reset-extensions',
-    help="Disables and then re-enables all currently enabled extensions")
 def reset_extensions():
+    """Disables and then re-enables all currently enabled extensions"""
     extensions = _get_enabled_extensions()
     _execute(
         'gsettings set org.gnome.shell enabled-extensions "{0}"'.format(
@@ -130,21 +128,18 @@ def _get_display_list():
     return displays
 
 
-@argh.arg(
-    'list-displays',
-    help="Lists all available display outputs as named by output from xrandr")
 def list_displays():
+    """Lists all available display outputs as named by output from xrandr"""
     print '\n'.join(_get_display_list())
 
 
-display_choices = ['all']
-display_choices.extend(_get_display_list())
+display_choices = _get_display_list()
 
 
 @argh.arg(
     'displays', nargs="+", choices=display_choices, metavar='',
-    help="You can choose 'all', or any number of displays from the "
-    "list-displays command")
+    help="Choose 'all', or any combination of available displays: "
+    + " ".join(display_choices))
 def fix_colors(displays):
     for display in displays:
         _execute(
@@ -169,7 +164,7 @@ parser.add_commands(
      fix_colors,
      scale_gui,
      list_displays,
-     reset_wifi])
+     reset_network])
 
 if __name__ == "__main__":
     parser.dispatch()
