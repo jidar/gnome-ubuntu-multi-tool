@@ -14,14 +14,14 @@ def _execute(command):
     return (std_out, std_err, return_code)
 
 
+@argh.arg('reset-wifi', help="Cycles wifi to reset state after suspend")
 def reset_wifi():
     _execute("sudo service network-manager stop")
     _execute("sudo rm -f /var/lib/NetworkManager/NetworkManager.state")
     _execute("sudo service network-manager start")
 
 
-@argh.arg(
-    'location', nargs=1, choices=['user', 'system', 'all'])
+@argh.arg('location', nargs=1, choices=['user', 'system', 'all'])
 def list_extensions(location):
     print "\n".join(_get_extensions(location[0]))
 
@@ -111,7 +111,9 @@ def disable_extensions(extensions):
             extensions))
 
 
-@argh.arg(help="Disables and then re-enables all active extensions")
+@argh.arg(
+    'reset-extensions',
+    help="Disables and then re-enables all currently enabled extensions")
 def reset_extensions():
     extensions = _get_enabled_extensions()
     _execute(
@@ -128,7 +130,9 @@ def _get_display_list():
     return displays
 
 
-@argh.arg(help="Lists all displays as named by xrandr")
+@argh.arg(
+    'list-displays',
+    help="Lists all available display outputs as named by output from xrandr")
 def list_displays():
     print '\n'.join(_get_display_list())
 
@@ -148,7 +152,7 @@ def fix_colors(displays):
                 display=display))
 
 
-@argh.arg('factor', type=float)
+@argh.arg('factor', type=float, help="Sets the gui text-scaling")
 def scale_gui(factor):
     return _execute(
         'gsettings set org.gnome.desktop.interface text-scaling-factor '
