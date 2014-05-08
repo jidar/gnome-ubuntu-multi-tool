@@ -68,7 +68,7 @@ def _get_enabled_extensions():
 
 
 ext = ['user', 'system', 'all']
-ext.extend(_get_extensions(['all']))
+ext.extend(_get_extensions('all'))
 extension_decorator = argh.arg(
     'extensions', nargs="+", choices=ext, metavar='',
     help="run the list-extensions command to see a list of available"
@@ -133,13 +133,13 @@ def list_displays():
     print '\n'.join(_get_display_list())
 
 
-display_choices = _get_display_list()
+display_choices = ['all']
+display_choices.extend(_get_display_list())
+help_str = "Choose 'all', or any available display(s): {0}".format(
+    " ".join(display_choices))
 
 
-@argh.arg(
-    'displays', nargs="+", choices=display_choices, metavar='',
-    help="Choose 'all', or any combination of available displays: "
-    + " ".join(display_choices))
+@argh.arg('displays', nargs="+", choices=display_choices, metavar='', help=help_str)
 def fix_colors(displays):
     for display in displays:
         _execute(
@@ -147,11 +147,21 @@ def fix_colors(displays):
                 display=display))
 
 
-@argh.arg('factor', type=float, help="Sets the gui text-scaling")
+@argh.arg('factor', type=float, help="Sets gnome's text-scaling")
 def scale_gui(factor):
     return _execute(
         'gsettings set org.gnome.desktop.interface text-scaling-factor '
         '{factor}'.format(factor=factor))
+
+
+#Don't use, very weird behavior
+@argh.arg('factor', type=float, help="Sets gnome's window-scaling")
+def scale_gui_windows(factor):
+    cmd = (
+        "gsettings set org.gnome.settings-daemon.plugins.xsettings "
+        "overrides \"{'Gdk/WindowScalingFactor':<{factor}>, "
+        "'DGK/UnscaledDPI':<dpi>}\"")
+    return _execute(cmd)
 
 
 parser = argh.ArghParser()
