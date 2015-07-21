@@ -139,7 +139,8 @@ help_str = "Choose 'all', or any available display(s): {0}".format(
     " ".join(display_choices))
 
 
-@argh.arg('displays', nargs="+", choices=display_choices, metavar='', help=help_str)
+@argh.arg(
+    'displays', nargs="+", choices=display_choices, metavar='', help=help_str)
 def fix_colors(displays):
     for display in displays:
         _execute(
@@ -172,6 +173,7 @@ parser.add_commands(
      disable_extensions,
      reset_extensions,
      fix_colors,
+#     set_resolution,
      scale_gui,
      list_displays,
      reset_network])
